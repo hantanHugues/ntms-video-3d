@@ -1,0 +1,73 @@
+name: Assembler la serie (sans refaire les images)
+
+# Reprend les morceaux d'images d'une execution precedente de « Rendre la serie »,
+# puis fait le son, l'assemblage et le depot. Donner le numero de cette execution.
+on:
+  workflow_dispatch:
+    inputs:
+      execution:
+        description: "Numero de l'execution qui a rendu les images"
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  assembler:
+    strategy:
+      fail-fast: false
+      matrix:
+        ep: [1, 2, 3]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg python3
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ep${{ matrix.ep }}-p*
+          path: morceaux
+          run-id: ${{ inputs.execution }}
+          github-token: ${{ github.token }}
+      - name: Recoller les morceaux
+        run: |
+          : > liste.txt
+          for p in 0 1 2 3; do echo "file 'morceaux/ep${{ matrix.ep }}-p$p/morceau.mp4'" >> liste.txt; done
+          ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i liste.txt -c copy video.mp4
+      - name: Bande-son (voix + bruitages + musique)
+        run: python3 serie/mixer.py ep${{ matrix.ep }}
+      - name: Assembler (logo AIESEC muet a la fin du dernier episode)
+        run: |
+          E=${{ matrix.ep }}; SON=out/serie/ep$E-son.wav
+          if [ "$E" = "3" ]; then
+            ffmpeg -hide_banner -loglevel error -y -i video.mp4 -t 5 -i assets/logo-aiesec.mov -i "$SON" -filter_complex \
+              "color=c=white:s=1080x1920:r=30:d=5[bg];[1:v]fps=30,scale=iw*1.6:-1,format=yuva444p[lg];[bg][lg]overlay=(W-w)/2:(H-h)/2:format=auto,format=yuv420p,setsar=1[fin];[0:v]format=yuv420p,setsar=1[deb];[deb][fin]concat=n=2:v=1:a=0[v];[2:a]apad=pad_dur=5.2[a]" \
+              -map "[v]" -map "[a]" -c:v libx264 -preset slow -crf 16 -colorspace bt709 -color_primaries bt709 -color_trc bt709 -c:a aac -b:a 192k -shortest -movflags +faststart Episode$E.mp4
+          else
+            ffmpeg -hide_banner -loglevel error -y -i video.mp4 -i "$SON" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart Episode$E.mp4
+          fi
+          ls -la Episode$E.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Episode${{ matrix.ep }}
+          path: Episode${{ matrix.ep }}.mp4
+          retention-days: 14
+
+  deposer:
+    needs: assembler
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: Episode*
+          merge-multiple: true
+          path: .
+      - name: Deposer les 3 episodes a la racine du depot
+        run: |
+          ls -la Episode*.mp4
+          git config user.name "hantanhugues"
+          git config user.email "hugueshantan@gmail.com"
+          git add Episode1.mp4 Episode2.mp4 Episode3.mp4
+          git commit -m "Serie Eddy : 3 episodes (rendu automatique)" || echo "rien a deposer"
+          git push
