@@ -68,12 +68,19 @@ export const pageImage = (im: HTMLImageElement | null, legende?: string, illustr
   const W = 800, H = 1100; const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const x = cv.getContext("2d")!; papier(x, W, H);
   if (im) {
-    x.save(); x.shadowColor = "rgba(40,20,5,0.45)"; x.shadowBlur = 18; x.fillStyle = "#fff"; x.fillRect(70, 110, W - 140, 760); x.restore();
-    x.filter = "sepia(0.45) contrast(1.08) brightness(0.98)"; couvrir(x, im, 84, 124, W - 168, 732); x.filter = "none";
+    const maxW = W - 140, maxH = 780; const r = Math.min(maxW / im.width, maxH / im.height);
+    const w = Math.round(im.width * r), hh = Math.round(im.height * r); const px = (W - w) / 2, py = 90 + (maxH - hh) / 2;
+    x.save(); x.shadowColor = "rgba(40,20,5,0.45)"; x.shadowBlur = 18; x.fillStyle = "#fff"; x.fillRect(px - 14, py - 14, w + 28, hh + 28); x.restore();
+    x.filter = "sepia(0.45) contrast(1.08) brightness(0.98)"; x.drawImage(im, px, py, w, hh); x.filter = "none";
+    if (illustration) {
+      x.font = `800 22px "${police.texte}"`; const txt = "IMAGES D'ILLUSTRATION"; const tw = x.measureText(txt).width;
+      x.fillStyle = "rgba(10,6,4,0.7)"; x.beginPath(); x.roundRect(px + 12, py + hh - 46, tw + 40, 34, 17); x.fill();
+      x.fillStyle = "#FF7A00"; x.beginPath(); x.arc(px + 30, py + hh - 29, 6, 0, Math.PI * 2); x.fill();
+      x.fillStyle = "#FFEBD1"; x.textAlign = "left"; x.fillText(txt, px + 44, py + hh - 21);
+    }
   }
   x.fillStyle = "#3A1B0C"; x.textAlign = "center";
-  if (legende) { x.font = `italic 700 40px "${police.texte}"`; x.fillText(legende, W / 2, 960); }
-  if (illustration) { x.font = `700 26px "${police.texte}"`; x.fillStyle = "rgba(58,27,12,0.65)"; x.fillText("IMAGES D'ILLUSTRATION", W / 2, 1040); }
+  if (legende) { x.font = `italic 700 40px "${police.texte}"`; x.fillText(legende, W / 2, 970); }
   return texture(cv);
 };
 /** Page de titre (ex. « 1948 »). */
@@ -330,18 +337,19 @@ export const Texte3D: React.FC<{
   );
 };
 
-/** Petite phrase « tapee » avec curseur, dans une pastille sombre (comme la reference). */
-export const Tape: React.FC<{ texte: string; debut: number; fin?: number; top: number; taille?: number; vitesse?: number; pastille?: boolean }> = ({ texte, debut, fin, top, taille = 46, vitesse = 1.3, pastille = true }) => {
+/** Petite phrase : revelee de gauche a droite par un masque, avec une fine barre orange devant. */
+export const Tape: React.FC<{ texte: string; debut: number; fin?: number; top: number; taille?: number; vitesse?: number }> = ({ texte, debut, fin, top, taille = 46 }) => {
   const f = useCurrentFrame();
   if (f < debut || (fin !== undefined && f > fin)) return null;
-  const n = Math.min(texte.length, Math.floor((f - debut) * vitesse));
+  const rev = prog(f, debut + 4, debut + 4 + Math.min(30, 10 + texte.length * 0.5));
+  const barre = prog(f, debut, debut + 10);
   const q = fin !== undefined ? prog(f, fin - 8, fin) : 0;
-  const curseur = Math.floor(f / 8) % 2 === 0 || n < texte.length;
   return (
-    <div style={{ position: "absolute", top, left: 0, right: 0, display: "flex", justifyContent: "center", opacity: 1 - q }}>
-      <div style={{ padding: pastille ? "18px 34px" : 0, borderRadius: 999, background: pastille ? "rgba(20,12,8,0.55)" : undefined, border: pastille ? "1.5px solid rgba(255,235,209,0.22)" : undefined, backdropFilter: pastille ? "blur(8px)" : undefined, maxWidth: 900 }}>
-        <span style={{ fontFamily: police.texte, fontWeight: 700, fontSize: taille, color: charte.creme, letterSpacing: "0.01em" }}>{texte.slice(0, n)}</span>
-        <span style={{ display: "inline-block", width: 4, height: taille * 0.95, marginLeft: 6, verticalAlign: "middle", background: charte.orange, opacity: curseur ? 1 : 0 }} />
+    <div style={{ position: "absolute", top, left: 0, right: 0, display: "flex", justifyContent: "center", opacity: 1 - q, transform: `translateY(${-q * 20}px)` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 18, maxWidth: 940 }}>
+        <div style={{ width: 6, height: taille * 1.1, background: charte.orange, transform: `scaleY(${barre})`, borderRadius: 3, boxShadow: "0 0 14px rgba(255,122,0,0.6)" }} />
+        <span style={{ fontFamily: police.texte, fontWeight: 700, fontSize: taille, color: charte.creme, letterSpacing: "0.01em", textShadow: "0 4px 18px rgba(0,0,0,0.85)",
+          clipPath: `inset(-20% ${(1 - rev) * 100}% -20% 0)`, transform: `translateX(${(1 - rev) * -12}px)` }}>{texte}</span>
       </div>
     </div>
   );
@@ -352,7 +360,7 @@ export const Etiquette: React.FC<{ debut: number; fin: number; texte?: string }>
   const f = useCurrentFrame(); if (f < debut || f > fin) return null;
   const o = prog(f, debut, debut + 10) * (1 - prog(f, fin - 8, fin));
   return (
-    <div style={{ position: "absolute", top: 120, left: 60, opacity: o, display: "flex", alignItems: "center", gap: 12, padding: "10px 20px", borderRadius: 999, background: "rgba(10,6,4,0.55)", border: "1px solid rgba(255,235,209,0.25)" }}>
+    <div style={{ position: "absolute", top: 1760, left: 60, opacity: o, display: "flex", alignItems: "center", gap: 12, padding: "10px 20px", borderRadius: 999, background: "rgba(10,6,4,0.6)", border: "1px solid rgba(255,235,209,0.25)" }}>
       <div style={{ width: 12, height: 12, borderRadius: "50%", background: charte.orange }} />
       <span style={{ fontFamily: police.texte, fontWeight: 700, fontSize: 30, color: charte.creme, letterSpacing: "0.06em", textTransform: "uppercase" }}>{texte}</span>
     </div>
@@ -430,13 +438,15 @@ export const Finitions: React.FC = () => {
     </>
   );
 };
-/** Photo plein cadre avec lent mouvement (Ken Burns) et fondu. */
-export const PhotoPlein: React.FC<{ src: string; debut: number; fin: number; zoom?: [number, number]; ancien?: boolean; fondu?: number }> = ({ src, debut, fin, zoom = [1.05, 1.16], ancien, fondu = 12 }) => {
+/** Photo : par defaut ENTIERE (rien de coupe) sur un fond flou d'elle-meme, avec un zoom tres leger. */
+export const PhotoPlein: React.FC<{ src: string; debut: number; fin: number; zoom?: [number, number]; ancien?: boolean; fondu?: number; couvrir?: boolean }> = ({ src, debut, fin, zoom = [1.0, 1.04], ancien, fondu = 10, couvrir }) => {
   const f = useCurrentFrame(); if (f < debut - 1 || f > fin + 1) return null;
   const t = prog(f, debut, fin, Easing.linear); const o = prog(f, debut, debut + fondu) * (1 - prog(f, fin - fondu, fin));
+  const filtre = ancien ? "sepia(0.35) contrast(1.06)" : "saturate(1.05)";
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
-      <Img src={staticFile(src)} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${lerp(zoom[0], zoom[1], t)}) translateY(${lerp(10, -10, t)}px)`, filter: ancien ? "sepia(0.35) contrast(1.06)" : "saturate(1.05)" }} />
+      {!couvrir ? <Img src={staticFile(src)} style={{ position: "absolute", inset: -60, width: "calc(100% + 120px)", height: "calc(100% + 120px)", objectFit: "cover", filter: `${filtre} blur(38px) brightness(0.55)` }} /> : null}
+      <Img src={staticFile(src)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: couvrir ? "cover" : "contain", transform: `scale(${lerp(zoom[0], zoom[1], t)})`, filter: filtre, boxShadow: "0 30px 80px rgba(0,0,0,0.6)" }} />
     </AbsoluteFill>
   );
 };

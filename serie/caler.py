@@ -12,14 +12,14 @@ PLANS = {
  "ep1": [("S","eddy"),0.9,"s1a",0.35,"s1b",0.35,"s1c",0.5,"s1d",("S","livre"),2.4,
          ("S","guerre"),"s2a",0.5,"s2b",1.1,("S","mission"),"s2c",2.2,
          ("S","idee"),"s3a",0.45,"s3b",1.3,("S","valeurs"),"s4a",0.5,"s4b",("S","fin"),2.8],
- "ep2": [("S","galerie"),1.0,"s1a",0.45,"s1b",3.2,
-         ("S","portraits"),"s2a",0.8,"s2b",1.0,"s2c",1.0,"s2d",1.4,
-         ("S","carte"),1.4,"s3a",0.45,"s3b",0.6,"s3c",1.2,
-         ("S","benin"),"s4a",0.8,"s4b",3.0,"s4c",1.0,("S","feuilletage"),4.5,("S","fin"),"s5a",2.8],
+ "ep2": [("S","galerie"),1.0,"s1a",0.45,"s1b",6.4,
+         ("S","portraits"),"s2a",1.1,"s2b",1.5,"s2c",1.5,"s2d",1.7,
+         ("S","carte"),1.4,"s3a",0.45,"s3b",0.6,"s3c",1.4,
+         ("S","benin"),"s4a",0.8,"s4b",1.6,"s4c",0.4,"s4d",1.2,("S","feuilletage"),4.5,("S","fin"),"s5a",2.4],
  "ep3": [("S","aujourdhui"),1.0,"s1a",0.45,"s1b",0.6,"s1c",1.2,
          ("S","gala"),2.6,"s2a",0.35,"s2b",0.7,"s2c",1.8,
          ("S","jeunes"),"s3a",0.45,"s3b",2.6,
-         ("S","ntms"),"s4a",0.6,"s4b",1.2,("S","fin"),"s5a",2.6],
+         ("S","ntms"),"s4a",0.8,"s4b",1.4,("S","fin"),"s5a",2.6],
 }
 for ep, plan in PLANS.items():
     t = 0.0; seg = {}; scenes = {}; ordre = []

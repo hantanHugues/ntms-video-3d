@@ -1,5 +1,5 @@
 {
- "total": 71.81,
+ "total": 79.92,
  "seg": {
   "s1a": {
    "debut": 1.0,
@@ -10,74 +10,78 @@
    "fin": 9.4
   },
   "s2a": {
-   "debut": 12.6,
-   "fin": 16.73
+   "debut": 15.8,
+   "fin": 19.93
   },
   "s2b": {
-   "debut": 17.53,
-   "fin": 22.41
+   "debut": 21.03,
+   "fin": 24.47
   },
   "s2c": {
-   "debut": 23.41,
-   "fin": 26.48
+   "debut": 25.97,
+   "fin": 28.43
   },
   "s2d": {
-   "debut": 27.48,
-   "fin": 31.43
+   "debut": 29.93,
+   "fin": 32.21
   },
   "s3a": {
-   "debut": 34.23,
-   "fin": 38.18
+   "debut": 35.31,
+   "fin": 39.26
   },
   "s3b": {
-   "debut": 38.63,
-   "fin": 42.58
+   "debut": 39.71,
+   "fin": 43.66
   },
   "s3c": {
-   "debut": 43.18,
-   "fin": 46.11
+   "debut": 44.26,
+   "fin": 47.19
   },
   "s4a": {
-   "debut": 47.31,
-   "fin": 49.77
+   "debut": 48.59,
+   "fin": 51.28
   },
   "s4b": {
-   "debut": 50.57,
-   "fin": 53.5
+   "debut": 52.08,
+   "fin": 59.56
   },
   "s4c": {
-   "debut": 56.5,
-   "fin": 59.61
+   "debut": 61.16,
+   "fin": 64.41
+  },
+  "s4d": {
+   "debut": 64.81,
+   "fin": 67.92
   },
   "s5a": {
-   "debut": 65.11,
-   "fin": 69.01
+   "debut": 73.62,
+   "fin": 77.52
   }
  },
  "scenes": {
   "galerie": {
    "debut": 0.0,
-   "fin": 12.6
+   "fin": 15.8
   },
   "portraits": {
-   "debut": 12.6,
-   "fin": 32.83
+   "debut": 15.8,
+   "fin": 33.91
   },
   "carte": {
-   "debut": 32.83,
-   "fin": 47.31
+   "debut": 33.91,
+   "fin": 48.59
   },
   "benin": {
-   "debut": 47.31,
-   "fin": 60.61
+   "debut": 48.59,
+   "fin": 69.12
   },
   "feuilletage": {
-   "debut": 60.61,
-   "fin": 65.11
+   "debut": 69.12,
+   "fin": 73.62
   },
   "fin": {
-   "debut": 65.11,
-   "fin": 71.81
+   "debut": 73.62,
+   "fin": 79.92
   }
  }
 }

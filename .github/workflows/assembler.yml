@@ -36,10 +36,10 @@ jobs:
           ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i liste.txt -c copy video.mp4
       - name: Bande-son (voix + bruitages + musique)
         run: python3 serie/mixer.py ep${{ matrix.ep }}
-      - name: Assembler (logo AIESEC muet a la fin du dernier episode)
+      - name: Assembler (logo AIESEC muet a la fin de chaque episode)
         run: |
           E=${{ matrix.ep }}; SON=out/serie/ep$E-son.wav
-          if [ "$E" = "3" ]; then
+          if true; then   # logo AIESEC muet a la fin de CHAQUE episode
             ffmpeg -hide_banner -loglevel error -y -i video.mp4 -t 5 -i assets/logo-aiesec.mov -i "$SON" -filter_complex \
               "color=c=white:s=1080x1920:r=30:d=5[bg];[1:v]fps=30,scale=iw*1.6:-1,format=yuva444p[lg];[bg][lg]overlay=(W-w)/2:(H-h)/2:format=auto,format=yuv420p,setsar=1[fin];[0:v]format=yuv420p,setsar=1[deb];[deb][fin]concat=n=2:v=1:a=0[v];[2:a]apad=pad_dur=5.2[a]" \
               -map "[v]" -map "[a]" -c:v libx264 -preset slow -crf 16 -colorspace bt709 -color_primaries bt709 -color_trc bt709 -c:a aac -b:a 192k -shortest -movflags +faststart Episode$E.mp4

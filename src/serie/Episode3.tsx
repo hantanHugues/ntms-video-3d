@@ -11,6 +11,8 @@ import {
 const M = ep3 as Minutage; const R = reperes(M);
 export const DUREE_EP3 = s(M.total);
 const LIVRE = { x: 0.3, y: 1.57, z: 0.25 };
+const DEFILE_ANCIENS = ["groupe-01", "promo-01", "soiree-01", "bandeau-01", "public-01", "bandeau-05", "prise-parole-01", "bandeau-09", "public-03", "bandeau-12", "atelier-02", "bandeau-14"];
+const DEFILE_JEUNES = ["atelier-01", "public-02", "prise-parole-02", "bandeau-03", "public-04", "bandeau-07", "prise-parole-03", "bandeau-10", "portrait-01", "bandeau-13"];
 
 export const Episode3: React.FC = () => {
   const f = useCurrentFrame();
@@ -52,31 +54,36 @@ export const Episode3: React.FC = () => {
       <Polaroid src="serie/photos/public-01.jpg" debut={R.seg("s1c") + 10} fin={R.sc("gala") - 2} x={600} y={1010} largeur={380} rot={-5} />
       <Pixels t0={R.seg("s1b") + s(0.3)} x={540} y={300} />
 
-      {/* MERCI AUX ANCIENS : la photo de 2006 se fond dans les photos d'aujourd'hui */}
-      <PhotoPlein src="archives/gala-2006.jpg" debut={R.sc("gala") - 6} fin={R.seg("s2b") + 10} ancien zoom={[1.02, 1.14]} fondu={18} />
-      <PhotoPlein src="serie/photos/groupe-01.jpg" debut={R.seg("s2b") - 8} fin={R.seg("s2c") + s(1.6)} zoom={[1.04, 1.12]} fondu={22} />
-      <PhotoPlein src="serie/photos/promo-01.jpg" debut={R.seg("s2c") + s(1.0)} fin={R.sc("jeunes") + 6} zoom={[1.04, 1.12]} fondu={22} />
-      {f >= R.sc("gala") - 6 && f < R.sc("ntms") + 6 ? <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(11,6,3,0.55) 0%, transparent 28%, transparent 60%, rgba(11,6,3,0.85) 100%)" }} /> : null}
-      <Tape texte="Gala · Palais des Congrès · 2006" debut={R.sc("gala") + 8} fin={R.seg("s2a") + s(2.2)} top={1700} taille={40} />
+      {/* MERCI AUX ANCIENS : la photo de 2006 (entiere), puis les photos d'aujourd'hui, en rafale douce */}
+      <PhotoPlein src="archives/gala-2006.jpg" debut={R.sc("gala") - 6} fin={R.seg("s2a") + s(2.0)} ancien fondu={14} />
+      {DEFILE_ANCIENS.map((nom, i) => {
+        const t0 = R.seg("s2a") + s(2.0) - 8 + i * s(1.5);
+        return t0 < R.sc("jeunes") ? <PhotoPlein key={nom} src={`serie/photos/${nom}.jpg`} debut={t0} fin={Math.min(R.sc("jeunes") + 6, t0 + s(1.5) + 10)} fondu={8} /> : null;
+      })}
+      {f >= R.sc("gala") - 6 && f < R.sc("ntms") + 6 ? <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(11,6,3,0.45) 0%, transparent 22%, transparent 62%, rgba(11,6,3,0.85) 100%)" }} /> : null}
+      <Tape texte="Gala · Palais des Congrès · 2006" debut={R.sc("gala") + 8} fin={R.seg("s2a") + s(2.0)} top={1700} taille={40} />
       <Texte3D texte="Merci." debut={R.seg("s2c") + s(0.3)} fin={R.sc("jeunes") - 2} mode="profondeur" taille={220} top={1380} />
       <Tape texte="Venez célébrer avec nous." debut={R.seg("s2c") + s(2.4)} fin={R.sc("jeunes") - 2} top={1680} />
 
-      {/* AUX JEUNES */}
-      <PhotoPlein src="serie/photos/atelier-01.jpg" debut={R.sc("jeunes") - 6} fin={R.seg("s3b") + 6} zoom={[1.04, 1.14]} fondu={18} />
-      <PhotoPlein src="serie/photos/prise-parole-02.jpg" debut={R.seg("s3b") - 8} fin={R.sc("ntms") + 6} zoom={[1.04, 1.14]} fondu={18} />
-      <Texte3D texte="C’est ton tour." debut={R.segFin("s3b") - s(0.9)} fin={R.sc("ntms") - 2} mode="tombe" taille={150} top={1260} couleur={charte.orange} />
-      <Tape texte="Élever nos standards, pour un meilleur impact." debut={R.segFin("s3b") + s(0.2)} fin={R.sc("ntms") - 2} top={1640} taille={42} />
+      {/* AUX JEUNES : plus de photos, plus courtes */}
+      {DEFILE_JEUNES.map((nom, i) => {
+        const t0 = R.sc("jeunes") - 6 + i * s(1.4);
+        return t0 < R.sc("ntms") ? <PhotoPlein key={nom} src={`serie/photos/${nom}.jpg`} debut={t0} fin={Math.min(R.sc("ntms") + 6, t0 + s(1.4) + 10)} fondu={8} /> : null;
+      })}
+      <Texte3D texte="C’est ton tour." debut={R.segFin("s3b") - s(0.9)} fin={R.sc("ntms") - 2} mode="tombe" taille={150} top={1300} couleur={charte.orange} />
 
       {/* LE NTMS 2026 */}
       {f >= R.sc("ntms") - 4 && f < R.sc("fin") + 4 ? <AbsoluteFill style={{ background: "radial-gradient(90% 70% at 50% 40%, #2a160c 0%, #0b0603 75%)" }} /> : null}
       {f >= R.sc("ntms") - 4 && f < R.sc("fin") + 4 ? <Bokeh force={0.9} /> : null}
-      <Texte3D texte="NTMS 2026" debut={R.seg("s4a") + s(1.2)} fin={R.sc("fin") - 2} mode="tombe" taille={150} top={420} couleur={charte.orange} />
-      <Texte3D texte="18 – 22 novembre 2026" debut={R.seg("s4a") + s(0.2)} fin={R.sc("fin") - 2} mode="pivot" taille={74} top={640} />
-      <Texte3D texte="Lokossa, Bénin" debut={R.seg("s4a") + s(3.4)} fin={R.sc("fin") - 2} mode="pivot" taille={112} top={760} />
-      <Tape texte="ntms26.aiesec.bj" debut={R.seg("s4a") + s(4.2)} fin={R.sc("fin") - 2} top={950} />
-      <Texte3D texte="Anciens : venez célébrer." debut={R.seg("s4b")} fin={R.sc("fin") - 2} mode="profondeur" taille={66} top={1260} />
-      <Texte3D texte="Jeunes : venez écrire la suite." debut={R.seg("s4b") + s(2.4)} fin={R.sc("fin") - 2} mode="profondeur" taille={66} top={1370} couleur={charte.orange} />
-      <Pixels t0={R.seg("s4a") + s(1.3)} x={540} y={520} n={30} />
+      <Texte3D texte="18 – 22 novembre 2026" debut={R.seg("s4a") + s(0.2)} fin={R.sc("fin") - 2} mode="pivot" taille={70} top={250} />
+      <Texte3D texte="NTMS 2026" debut={R.seg("s4a") + s(1.4)} fin={R.sc("fin") - 2} mode="tombe" taille={150} top={350} couleur={charte.orange} />
+      <Texte3D texte="Lokossa, Bénin" debut={R.seg("s4a") + s(3.4)} fin={R.sc("fin") - 2} mode="pivot" taille={96} top={540} />
+      <Tape texte="THÈME" debut={R.seg("s4a") + s(5.0)} fin={R.sc("fin") - 2} top={760} taille={36} />
+      <Texte3D texte="20 ans d’existence : élever nos standards pour un meilleur impact." debut={R.seg("s4a") + s(5.6)} fin={R.sc("fin") - 2} mode="leve" taille={74} top={840} couleur="#f4d27a" lueur="rgba(255,170,60,0.55)" pas={0.8} />
+      <Tape texte="ntms26.aiesec.bj" debut={R.seg("s4a") + s(8.5)} fin={R.sc("fin") - 2} top={1150} />
+      <Texte3D texte="Anciens : venez célébrer." debut={R.seg("s4b")} fin={R.sc("fin") - 2} mode="profondeur" taille={66} top={1380} />
+      <Texte3D texte="Jeunes : venez écrire la suite." debut={R.seg("s4b") + s(2.4)} fin={R.sc("fin") - 2} mode="profondeur" taille={66} top={1490} couleur={charte.orange} />
+      <Pixels t0={R.seg("s4a") + s(1.5)} x={540} y={430} n={30} />
 
       {/* FIN : retour au bureau, Eddy referme le livre */}
       <Texte3D texte="On se retrouve à Lokossa !" debut={R.seg("s5a")} mode="pivot" taille={100} top={230} />
