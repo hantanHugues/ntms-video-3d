@@ -25,44 +25,66 @@ const PORTRAITS = [
 const XCARTE = 38.5;
 const PHOTOS = ["bandeau-01", "public-01", "atelier-01", "bandeau-04", "prise-parole-01", "groupe-01", "bandeau-07", "soiree-01", "public-02", "bandeau-09", "atelier-02", "promo-01", "bandeau-11", "prise-parole-02", "public-03", "bandeau-13", "portrait-01", "bandeau-02", "public-04", "bandeau-05", "prise-parole-03", "bandeau-08", "bandeau-12", "bandeau-14", "bandeau-03", "bandeau-06", "bandeau-10"];
 
-/* carte : les vrais contours des pays (Natural Earth, domaine public), projection equirectangulaire */
-type Pays = { iso: string; nom: string; a: [number, number][][] };
+/* carte : les vrais contours des pays (Natural Earth, domaine public), projection equirectangulaire.
+   Des points apparaissent sur les pays et se repandent ; on zoome sur le point du Benin, qui s'efface
+   quand on est assez pres : la carte du pays apparait. */
+type Pays = { iso: string; nom: string; a: [number, number][][]; c: [number, number]; s: number };
 const MW = 3600, MH = 1800;
 const px = (lon: number, lat: number) => [((lon + 180) / 360) * MW, ((90 - lat) / 180) * MH] as const;
-const BENIN_C: [number, number] = [2.3, 9.3];
-const CHEMIN: [number, number][] = [[4.4, 50.8], [6.5, 43.5], [4, 33], [2.5, 20], [1.8, 12.4], [2.4, 6.6]];
+const ORIGINE: [number, number] = [4.4, 50.8];        // la ou tout commence (l'Europe de 1948)
+type CarteDonnees = { pays: { iso: string; d: string }[]; points: { iso: string; x: number; y: number; rang: number }[]; benin: [number, number] };
 const useCarte = () => {
-  const [d, setD] = useState<{ pays: { iso: string; d: string }[] } | null>(null);
+  const [d, setD] = useState<CarteDonnees | null>(null);
   const [hd] = useState(() => delayRender("carte"));
   useEffect(() => {
     fetch(staticFile("serie/pays.json")).then((r) => r.json()).then((liste: Pays[]) => {
-      setD({ pays: liste.map((p) => ({ iso: p.iso, d: p.a.map((anneau) => "M" + anneau.map(([lo, la]) => px(lo, la).map((v) => v.toFixed(1)).join(" ")).join("L") + "Z").join("") })) });
+      const retenus = liste.filter((p) => p.s >= 1 || p.iso === "BEN")
+        .map((p) => ({ iso: p.iso, x: px(p.c[0], p.c[1])[0], y: px(p.c[0], p.c[1])[1], dist: Math.hypot(p.c[0] - ORIGINE[0], (p.c[1] - ORIGINE[1]) * 1.2) }))
+        .sort((a, b) => a.dist - b.dist).map((p, rang) => ({ iso: p.iso, x: p.x, y: p.y, rang }));
+      const ben = liste.find((p) => p.iso === "BEN")!;
+      setD({
+        pays: liste.map((p) => ({ iso: p.iso, d: p.a.map((anneau) => "M" + anneau.map(([lo, la]) => px(lo, la).map((v) => v.toFixed(1)).join(" ")).join("L") + "Z").join("") })),
+        points: retenus, benin: [px(ben.c[0], ben.c[1])[0], px(ben.c[0], ben.c[1])[1]],
+      });
       setTimeout(() => continueRender(hd), 200);
     }).catch(() => continueRender(hd));
   }, [hd]);
   return d;
 };
-const Carte: React.FC<{ debut: number; carte: { pays: { iso: string; d: string }[] } | null }> = ({ debut, carte }) => {
+const Carte: React.FC<{ debut: number; carte: CarteDonnees | null }> = ({ debut, carte }) => {
   const f = useCurrentFrame();
-  const z = prog(f, R.seg("s3b") + s(1.0), R.seg("s3c") + s(1.6), Easing.inOut(Easing.cubic));
+  if (!carte) return null;
+  const [bx, by] = carte.benin;
+  const z = prog(f, R.seg("s3b") + s(1.0), R.seg("s3c") + s(1.8), Easing.inOut(Easing.cubic));
   const echelle = Math.exp(lerp(Math.log(0.29), Math.log(9.5), z));
-  const [bx, by] = px(BENIN_C[0], BENIN_C[1]);
-  const cx = lerp(MW / 2, bx, Math.min(1, z * 1.4)), cy = lerp(MH * 0.43, by, Math.min(1, z * 1.4));
-  const trace = prog(f, R.seg("s3a"), R.seg("s3c"), Easing.inOut(Easing.cubic));
-  const pts = CHEMIN.map(([lo, la]) => px(lo, la));
-  const longueur = pts.slice(1).reduce((acc, p, i) => acc + Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]), 0);
-  const allume = prog(f, R.seg("s3c") + s(0.6), R.seg("s3c") + s(1.8));
+  const cx = lerp(MW / 2, bx, Math.min(1, z * 1.3)), cy = lerp(MH * 0.43, by, Math.min(1, z * 1.3));
+  // les points se repandent depuis l'Europe, du debut de « s3a » a la fin de « s3b »
+  const t0 = R.seg("s3a"), t1 = R.segFin("s3b"), N = carte.points.length;
+  const pres = prog(echelle, 2.5, 5.5, Easing.linear);            // on est « assez pres » du Benin
+  const pays = prog(echelle, 3.5, 7.5);
   return (
     <AbsoluteFill style={{ background: "radial-gradient(80% 60% at 50% 45%, #0d1620 0%, #04070b 80%)", overflow: "hidden", opacity: prog(f, debut, debut + 8) }}>
       <div style={{ position: "absolute", left: 540, top: 960, width: MW, height: MH, transformOrigin: "0 0", transform: `scale(${echelle}) translate(${-cx}px, ${-cy}px)` }}>
         <svg width={MW} height={MH} style={{ overflow: "visible" }}>
-          {carte?.pays.map((p) => (
+          {carte.pays.map((p) => (
             <path key={p.iso + p.d.length} d={p.d} vectorEffect="non-scaling-stroke"
-              fill={p.iso === "BEN" ? `rgba(255,122,0,${0.15 + 0.75 * allume})` : "#1d140d"}
-              stroke={p.iso === "BEN" ? "#FFEBD1" : "rgba(255,235,209,0.32)"} strokeWidth={p.iso === "BEN" ? 1.5 + 2 * allume : 1.1} />
+              fill={p.iso === "BEN" ? `rgba(255,122,0,${0.85 * pays})` : "#1d140d"}
+              stroke={p.iso === "BEN" ? `rgba(255,235,209,${0.3 + 0.7 * pays})` : "rgba(255,235,209,0.3)"} strokeWidth={p.iso === "BEN" ? 1.1 + 1.2 * pays : 1.1} />
           ))}
-          <polyline points={pts.map((p) => p.join(",")).join(" ")} fill="none" stroke="#FFD27A" strokeWidth={4} vectorEffect="non-scaling-stroke"
-            strokeLinecap="round" strokeLinejoin="round" strokeDasharray={longueur} strokeDashoffset={longueur * (1 - trace)} style={{ filter: "drop-shadow(0 0 6px #ffb347)" }} />
+          {carte.points.map((p) => {
+            const ta = lerp(t0, t1, p.rang / N); const a = prog(f, ta, ta + 8);
+            if (a <= 0) return null;
+            const benin = p.iso === "BEN";
+            const fond = benin ? 1 - pres : 1 - pres * 0.85;               // le point du Benin s'efface quand on est pres
+            const r = (benin ? 9 + 5 * prog(f, R.seg("s3b") + s(0.6), R.seg("s3b") + s(1.2)) : 6) / echelle;
+            const halo = ((f - ta) % 40) / 40;
+            return (
+              <g key={p.iso} opacity={fond}>
+                <circle cx={p.x} cy={p.y} r={r * (1 + (1 - a) * 2.5)} fill={benin ? "#FFEBD1" : "#FF7A00"} opacity={a} />
+                {benin ? <circle cx={p.x} cy={p.y} r={r * (1.5 + halo * 2.5)} fill="none" stroke="#FFEBD1" strokeWidth={2 / echelle} opacity={(1 - halo) * a} /> : null}
+              </g>
+            );
+          })}
         </svg>
       </div>
       <AbsoluteFill style={{ background: "radial-gradient(70% 55% at 50% 50%, transparent 45%, rgba(0,0,0,0.7) 100%)" }} />
@@ -160,8 +182,7 @@ export const Episode2: React.FC = () => {
         const d = R.seg(segP[i]) - 8; const fin = i < 2 ? R.seg(segP[i + 1]) - 14 : R.sc("carte") - 2;
         return (
           <React.Fragment key={i}>
-            <Texte3D texte={p.nom} debut={d} fin={fin} mode="pivot" taille={92} top={1500} />
-            <Tape texte={p.titre} debut={d + 12} fin={fin} top={1630} taille={40} />
+            <Tape texte={p.titre} debut={d + 6} fin={fin} top={1560} taille={42} />
           </React.Fragment>
         );
       })}

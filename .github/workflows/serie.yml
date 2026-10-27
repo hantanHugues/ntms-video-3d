@@ -5,6 +5,10 @@ name: Rendre la serie (3 episodes)
 # de Episode1.mp4, Episode2.mp4, Episode3.mp4 a la RACINE du depot.
 on:
   workflow_dispatch:
+    inputs:
+      episodes:
+        description: "Episodes a rendre, ex. [2] ou [1,2,3]"
+        default: "[1,2,3]"
 
 permissions:
   contents: write
@@ -14,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ep: [1, 2, 3]
+        ep: ${{ fromJSON(inputs.episodes) }}
         part: [0, 1, 2, 3]
     runs-on: ubuntu-latest
     timeout-minutes: 150
@@ -50,7 +54,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ep: [1, 2, 3]
+        ep: ${{ fromJSON(inputs.episodes) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -98,6 +102,6 @@ jobs:
           ls -la Episode*.mp4
           git config user.name "hantanhugues"
           git config user.email "hugueshantan@gmail.com"
-          git add Episode1.mp4 Episode2.mp4 Episode3.mp4
+          git add Episode*.mp4
           git commit -m "Serie Eddy : 3 episodes (rendu automatique)" || echo "rien a deposer"
           git push
