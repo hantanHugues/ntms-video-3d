@@ -1,0 +1,103 @@
+name: Rendre la serie (3 episodes)
+
+# Onglet « Actions » -> « Rendre la serie (3 episodes) » -> « Run workflow ».
+# 12 machines en parallele (3 episodes x 4 morceaux), puis assemblage + son, puis depot
+# de Episode1.mp4, Episode2.mp4, Episode3.mp4 a la RACINE du depot.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  images:
+    strategy:
+      fail-fast: false
+      matrix:
+        ep: [1, 2, 3]
+        part: [0, 1, 2, 3]
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Dependances systeme
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3 libdbus-1-3 libatk1.0-0 libgbm-dev libasound2t64 libxrandr2 \
+            libxkbcommon-dev libxfixes3 libxcomposite1 libxdamage1 libatk-bridge2.0-0 libpango-1.0-0 libcairo2 libcups2
+      - run: npm ci
+      - run: npx remotion browser ensure
+      - name: Rendre un morceau de l'episode
+        run: |
+          TOTAL=$(node -e "const d=require('./src/serie/ep${{ matrix.ep }}.json');console.log(Math.round(d.total*30))")
+          N=4; P=${{ matrix.part }}
+          A=$(( TOTAL * P / N )); B=$(( TOTAL * (P + 1) / N - 1 ))
+          echo "Episode ${{ matrix.ep }} : images $A a $B sur $TOTAL"
+          npx remotion render src/index.ts Episode${{ matrix.ep }} out/morceau.mp4 --frames=$A-$B \
+            --codec=h264 --crf=16 --jpeg-quality=100 --gl=swangle --concurrency=4 --port=3877
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ep${{ matrix.ep }}-p${{ matrix.part }}
+          path: out/morceau.mp4
+          retention-days: 3
+
+  assembler:
+    needs: images
+    strategy:
+      fail-fast: false
+      matrix:
+        ep: [1, 2, 3]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg python3
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ep${{ matrix.ep }}-p*
+          path: morceaux
+      - name: Recoller les morceaux
+        run: |
+          : > liste.txt
+          for p in 0 1 2 3; do echo "file 'morceaux/ep${{ matrix.ep }}-p$p/morceau.mp4'" >> liste.txt; done
+          ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i liste.txt -c copy video.mp4
+      - name: Bande-son (voix + bruitages + musique)
+        run: python3 serie/mixer.py ep${{ matrix.ep }}
+      - name: Assembler (logo AIESEC muet a la fin du dernier episode)
+        run: |
+          E=${{ matrix.ep }}; SON=out/serie/ep$E-son.wav
+          if [ "$E" = "3" ]; then
+            ffmpeg -hide_banner -loglevel error -y -i video.mp4 -t 5 -i assets/logo-aiesec.mov -i "$SON" -filter_complex \
+              "color=c=white:s=1080x1920:r=30:d=5[bg];[1:v]fps=30,scale=iw*1.6:-1,format=yuva444p[lg];[bg][lg]overlay=(W-w)/2:(H-h)/2:format=auto,format=yuv420p,setsar=1[fin];[0:v]format=yuv420p,setsar=1[deb];[deb][fin]concat=n=2:v=1:a=0[v];[2:a]apad=pad_dur=5.2[a]" \
+              -map "[v]" -map "[a]" -c:v libx264 -preset slow -crf 16 -colorspace bt709 -color_primaries bt709 -color_trc bt709 -c:a aac -b:a 192k -shortest -movflags +faststart Episode$E.mp4
+          else
+            ffmpeg -hide_banner -loglevel error -y -i video.mp4 -i "$SON" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart Episode$E.mp4
+          fi
+          ls -la Episode$E.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Episode${{ matrix.ep }}
+          path: Episode${{ matrix.ep }}.mp4
+          retention-days: 14
+
+  deposer:
+    needs: assembler
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: Episode*
+          merge-multiple: true
+          path: .
+      - name: Deposer les 3 episodes a la racine du depot
+        run: |
+          ls -la Episode*.mp4
+          git config user.name "hantanhugues"
+          git config user.email "hugueshantan@gmail.com"
+          git add Episode1.mp4 Episode2.mp4 Episode3.mp4
+          git commit -m "Serie Eddy : 3 episodes (rendu automatique)" || echo "rien a deposer"
+          git push
