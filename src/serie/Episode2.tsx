@@ -125,7 +125,7 @@ export const Episode2: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ background: "#0b0603" }}>
-      <Sequence durationInFrames={debutCarte + 4} layout="none"><Scene3D cam={cam} fond={fond} avant={avant} cle={pret ? "pret" : "attente"} /></Sequence>
+      <Sequence durationInFrames={debutCarte + 4} layout="none">{pret ? <Scene3D cam={cam} fond={fond} avant={avant} /> : null}</Sequence>
       <Bokeh derive={camX * 0.6} force={0.75} />
 
       {/* GALERIE : le nom de chaque valeur, en anglais, au passage devant son tableau */}

@@ -63,8 +63,8 @@ export const Episode1: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: "#0b0603" }}>
       {/* la salle et le livre (3D), sauf pendant la photo plein cadre */}
-      <Sequence durationInFrames={R.sc("idee") + 2} layout="none"><Scene3D cam={cam} fond={fond} avant={avant} flouAvant={gros * 9} cle={pret ? "pret" : "attente"} /></Sequence>
-      <Sequence from={R.sc("valeurs") - 16} durationInFrames={R.sc("fin") - R.sc("valeurs") + 16} layout="none"><Scene3D cam={cam} fond={fond} avant={avant} flouAvant={gros * 9} cle={pret ? "pret" : "attente"} /></Sequence>
+      <Sequence durationInFrames={R.sc("idee") + 2} layout="none">{pret ? <Scene3D cam={cam} fond={fond} avant={avant} flouAvant={gros * 9} /> : null}</Sequence>
+      <Sequence from={R.sc("valeurs") - 16} durationInFrames={R.sc("fin") - R.sc("valeurs") + 16} layout="none">{pret ? <Scene3D cam={cam} fond={fond} avant={avant} flouAvant={gros * 9} /> : null}</Sequence>
 
       {/* gros plans sur les pages du livre (avant-plan) */}
       {pret ? <PageProche pages={pages} tours={[R.sc("guerre") - 30, R.seg("s2b") - 4, R.sc("mission"), R.sc("valeurs") + 4]} debut={R.sc("guerre") - 4} fin={R.sc("idee") + 4} /> : null}
