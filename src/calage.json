@@ -1,0 +1,332 @@
+{
+ "total": 183.1,
+ "scenes": {
+  "01-mystere": {
+   "base": 9,
+   "duree": 9.4,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 0.9,
+     "fin": 2.25
+    },
+    {
+     "id": "b",
+     "debut": 3.4,
+     "fin": 4.42
+    },
+    {
+     "id": "c",
+     "debut": 5.6,
+     "fin": 6.99
+    },
+    {
+     "id": "d",
+     "debut": 7.7,
+     "fin": 8.4
+    }
+   ],
+   "debut": 0.0
+  },
+  "02-1948": {
+   "base": 8,
+   "duree": 8.6,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 0.3,
+     "fin": 2.55
+    },
+    {
+     "id": "b",
+     "debut": 3.3,
+     "fin": 4.69
+    },
+    {
+     "id": "c",
+     "debut": 5.2,
+     "fin": 7.63
+    }
+   ],
+   "debut": 9.4
+  },
+  "03-vision": {
+   "base": 17,
+   "duree": 17,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 0.3,
+     "fin": 3.32
+    },
+    {
+     "id": "b",
+     "debut": 3.7,
+     "fin": 6.96
+    },
+    {
+     "id": "c",
+     "debut": 7.26,
+     "fin": 7.96
+    },
+    {
+     "id": "d",
+     "debut": 8.26,
+     "fin": 9.93
+    },
+    {
+     "id": "e",
+     "debut": 10.23,
+     "fin": 11.63
+    },
+    {
+     "id": "f",
+     "debut": 11.93,
+     "fin": 14.14
+    }
+   ],
+   "debut": 18.0
+  },
+  "04-valeurs": {
+   "base": 0,
+   "duree": 51.8,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 0.2,
+     "fin": 3.82
+    },
+    {
+     "id": "v1",
+     "debut": 4.55,
+     "fin": 10.87
+    },
+    {
+     "id": "v2",
+     "debut": 12.12,
+     "fin": 17.3
+    },
+    {
+     "id": "v3",
+     "debut": 18.55,
+     "fin": 27.08
+    },
+    {
+     "id": "v4",
+     "debut": 28.33,
+     "fin": 36.41
+    },
+    {
+     "id": "v5",
+     "debut": 37.66,
+     "fin": 44.76
+    },
+    {
+     "id": "v6",
+     "debut": 46.01,
+     "fin": 50.78
+    }
+   ],
+   "T_VAL": 4.3,
+   "debuts": [
+    4.3,
+    11.87,
+    18.3,
+    28.08,
+    37.41,
+    45.76
+   ],
+   "debut": 35.0
+  },
+  "05-frise": {
+   "base": 13,
+   "duree": 13,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 1.0,
+     "fin": 3.37
+    },
+    {
+     "id": "b",
+     "debut": 4.4,
+     "fin": 6.13
+    },
+    {
+     "id": "c",
+     "debut": 6.43,
+     "fin": 8.66
+    },
+    {
+     "id": "d",
+     "debut": 8.96,
+     "fin": 10.37
+    }
+   ],
+   "debut": 86.8
+  },
+  "06-chiffres": {
+   "base": 9,
+   "duree": 9,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 1.2,
+     "fin": 2.73
+    },
+    {
+     "id": "b",
+     "debut": 3.2,
+     "fin": 4.42
+    },
+    {
+     "id": "c",
+     "debut": 5.2,
+     "fin": 6.86
+    }
+   ],
+   "debut": 99.8
+  },
+  "07-salut": {
+   "base": 13.3,
+   "duree": 22.5,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 0.3,
+     "fin": 2.57
+    },
+    {
+     "id": "b",
+     "debut": 3.7,
+     "fin": 7.33
+    },
+    {
+     "id": "c",
+     "debut": 7.63,
+     "fin": 9.35
+    },
+    {
+     "id": "d",
+     "debut": 10.5,
+     "fin": 16.44
+    },
+    {
+     "id": "e",
+     "debut": 16.74,
+     "fin": 19.9
+    },
+    {
+     "id": "f",
+     "debut": 20.8,
+     "fin": 21.49
+    }
+   ],
+   "debut": 108.8
+  },
+  "08-releve": {
+   "base": 4.5,
+   "duree": 4.5,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 0.4,
+     "fin": 3.35
+    }
+   ],
+   "debut": 131.3
+  },
+  "09-theme": {
+   "base": 10.5,
+   "duree": 10.5,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 0.3,
+     "fin": 1.27
+    },
+    {
+     "id": "b",
+     "debut": 1.6,
+     "fin": 2.75
+    },
+    {
+     "id": "c",
+     "debut": 4.3,
+     "fin": 5.69
+    }
+   ],
+   "debut": 135.8
+  },
+  "10-ntms": {
+   "base": 19.5,
+   "duree": 19.9,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 0.3,
+     "fin": 4.48
+    },
+    {
+     "id": "b",
+     "debut": 4.78,
+     "fin": 7.49
+    },
+    {
+     "id": "c",
+     "debut": 7.8,
+     "fin": 9.7
+    },
+    {
+     "id": "d",
+     "debut": 11.0,
+     "fin": 13.6
+    },
+    {
+     "id": "e",
+     "debut": 14.5,
+     "fin": 16.54
+    },
+    {
+     "id": "f",
+     "debut": 17.7,
+     "fin": 18.87
+    }
+   ],
+   "debut": 146.3
+  },
+  "11-appel": {
+   "base": 9,
+   "duree": 11.9,
+   "segments": [
+    {
+     "id": "a",
+     "debut": 0.5,
+     "fin": 2.64
+    },
+    {
+     "id": "b",
+     "debut": 2.94,
+     "fin": 5.59
+    },
+    {
+     "id": "c",
+     "debut": 5.89,
+     "fin": 7.19
+    },
+    {
+     "id": "d",
+     "debut": 7.49,
+     "fin": 10.89
+    }
+   ],
+   "debut": 166.2
+  },
+  "12-logo": {
+   "base": 5,
+   "duree": 5,
+   "segments": [],
+   "debut": 178.1
+  }
+ }
+}

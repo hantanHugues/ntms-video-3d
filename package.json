@@ -1,0 +1,26 @@
+{
+  "name": "ntms-2026-video",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Videos du NTMS 2026 (Remotion). Projet independant du site.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "rendre": "remotion render src/index.ts"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.0.4",
+    "@remotion/cli": "4.0.537",
+    "@remotion/google-fonts": "4.0.537",
+    "@remotion/three": "4.0.537",
+    "node": "^22.23.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "4.0.537",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/three": "0.170.0",
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,0 +1,48 @@
+name: Rendre le test 3D
+
+# Onglet « Actions » -> « Rendre le test 3D » -> « Run workflow ».
+# Resultat : Test3D.mp4 a la racine du depot (+ copie dans les « Artifacts »).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rendre:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Dependances systeme
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3 libdbus-1-3 libatk1.0-0 libgbm-dev libasound2t64 libxrandr2 \
+            libxkbcommon-dev libxfixes3 libxcomposite1 libxdamage1 libatk-bridge2.0-0 libpango-1.0-0 libcairo2 libcups2
+          nproc
+      - run: npm ci
+      - run: npx remotion browser ensure
+      - name: Rendre la scene 3D (15 s)
+        run: |
+          date +%T
+          npx remotion render src/index.ts Test3D out/Test3D.mp4 --codec=h264 --crf=16 --jpeg-quality=100 \
+            --gl=swangle --concurrency=4 --port=3877
+          date +%T
+          ls -la out/Test3D.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Test3D
+          path: out/Test3D.mp4
+          retention-days: 14
+      - name: Deposer Test3D.mp4 a la racine du depot
+        run: |
+          cp out/Test3D.mp4 Test3D.mp4
+          git config user.name "hantanhugues"
+          git config user.email "hugueshantan@gmail.com"
+          git add Test3D.mp4
+          git commit -m "Test 3D (rendu automatique)" || echo "rien a deposer"
+          git push
