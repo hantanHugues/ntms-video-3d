@@ -7,6 +7,7 @@ import { Episode1, DUREE_EP1 } from "./serie/Episode1";
 import { Episode2, DUREE_EP2 } from "./serie/Episode2";
 import { Episode3, DUREE_EP3 } from "./serie/Episode3";
 import { StyleA, StyleB, StyleC } from "./Styles";
+import { PlancheMascottes } from "./Mascottes";
 
 /** La liste des videos du projet. Une `Composition` = une video. */
 export const Racine: React.FC = () => (
@@ -29,5 +30,7 @@ export const Racine: React.FC = () => (
     <Composition id="StyleA" component={StyleA} durationInFrames={1} fps={30} width={1080} height={1920} />
     <Composition id="StyleB" component={StyleB} durationInFrames={1} fps={30} width={1080} height={1920} />
     <Composition id="StyleC" component={StyleC} durationInFrames={1} fps={30} width={1080} height={1920} />
+    {/* Nouvelle mascotte : planche des 5 propositions (image fixe). */}
+    <Composition id="Mascottes" component={PlancheMascottes} durationInFrames={1} fps={30} width={2560} height={1200} />
   </>
 );
