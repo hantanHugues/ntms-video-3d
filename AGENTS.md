@@ -28,6 +28,14 @@ git clone https://github.com/hantanHugues/ntms-video-3d.git && cd ntms-video-3d
 - 3D : Remotion + Three.js (`@remotion/three`, `@react-three/fiber`, `three`). Le rendu 3D choisit
   automatiquement `angle` (macOS) ou `swangle` (Linux sans carte graphique), voir `remotion.config.ts`.
   Sur une machine avec carte graphique sous Linux, `--gl=angle` ou `--gl=egl` est bien plus rapide.
+- **Windows** (PC du propriétaire : Ryzen 5 220 + RTX 5050) : `angle` = Direct3D, la carte graphique fait le rendu.
+  ffmpeg : `winget install Gyan.FFmpeg`. Sur un portable à deux cartes, forcer la NVIDIA pour le navigateur de rendu
+  (une fois, après `npx remotion browser ensure`) :
+  ```bash
+  reg add "HKCU\Software\Microsoft\DirectX\UserGpuPreferences" /v "<chemin>\node_modules\.remotion\chrome-headless-shell\win64\chrome-headless-shell-win64\chrome-headless-shell.exe" /t REG_SZ /d "GpuPreference=2;" /f
+  ```
+  Vérifier avec `nvidia-smi` pendant un rendu (`chrome-headless-shell.exe` doit apparaître). Mesuré : 300 images
+  de l'épisode 1 en 43 s (≈ 7 i/s), soit ≈ 4–5 min par épisode, plus rapide que GitHub Actions.
 
 ## 3. Travailler
 ```bash

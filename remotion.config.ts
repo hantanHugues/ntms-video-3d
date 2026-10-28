@@ -5,7 +5,10 @@ import { Config } from "@remotion/cli/config";
 if (process.platform === "darwin") {
   Config.setBrowserExecutable("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
 }
-// 3D : ANGLE sur le Mac, SwiftShader (rendu logiciel) sur les serveurs sans carte graphique.
-Config.setChromiumOpenGlRenderer(process.platform === "darwin" ? "angle" : "swangle");
+// 3D : ANGLE sur le Mac et sur Windows (Direct3D : la carte graphique fait le rendu),
+// SwiftShader (rendu logiciel) sur les serveurs Linux sans carte graphique.
+// Sur un portable Windows a deux cartes, forcer la carte NVIDIA pour chrome-headless-shell.exe
+// (Parametres > Affichage > Graphiques, ou la cle UserGpuPreferences : voir AGENTS.md).
+Config.setChromiumOpenGlRenderer(process.platform === "darwin" || process.platform === "win32" ? "angle" : "swangle");
 Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);
