@@ -3,7 +3,7 @@
 Ecrit src/serie/epN.json (lu par la video ET par le mixage du son)."""
 import json, os, re, subprocess
 ici = os.path.dirname(os.path.abspath(__file__)); racine = os.path.dirname(ici)
-FF = os.path.join(racine, "bin", "ffmpeg")
+FF = os.environ.get("FFMPEG") or (os.path.join(racine, "bin", "ffmpeg") if os.path.exists(os.path.join(racine, "bin", "ffmpeg")) else "ffmpeg")
 def duree(f):
     o = subprocess.run([FF, "-hide_banner", "-i", f, "-f", "null", "-"], capture_output=True, text=True).stderr
     m = re.search(r"Duration: (\d+):(\d+):([\d.]+)", o); return int(m[1]) * 3600 + int(m[2]) * 60 + float(m[3])

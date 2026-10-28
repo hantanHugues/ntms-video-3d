@@ -1,0 +1,12 @@
+node_modules/
+out/
+bin/
+.npm-cache/
+outils/
+.DS_Store
+# cles et secrets : JAMAIS dans le depot
+voix/.cle
+.env*
+# telecharges automatiquement (licence Mixkit : pas de redistribution)
+son/banque/
+son/musique/

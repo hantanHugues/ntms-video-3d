@@ -7,7 +7,7 @@ import json, os, re, subprocess, sys, urllib.request, urllib.error
 ici = os.path.dirname(os.path.abspath(__file__)); racine = os.path.dirname(ici)
 cle = open(os.path.join(racine, "voix", ".cle")).read().strip()
 VOIX = "O31r762Gb3WFygrEOGh0"   # Victoria
-FF = os.path.join(racine, "bin", "ffmpeg")
+FF = os.environ.get("FFMPEG") or (os.path.join(racine, "bin", "ffmpeg") if os.path.exists(os.path.join(racine, "bin", "ffmpeg")) else "ffmpeg")
 # ton : "taquin" (plus expressif), "recit" (pose), "sincere" (doux, sans humour)
 TONS = {"taquin": (0.35, 0.55), "recit": (0.5, 0.3), "sincere": (0.6, 0.2)}
 EPISODES = {
